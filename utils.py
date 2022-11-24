@@ -20,6 +20,13 @@ ERR_MESSAGE_TEMPLATE = "Something wrong. Please contact with mentor."
 MIN_MAJOR_PYTHON_VER = 3
 MIN_MINOR_PYTHON_VER = 9
 
+GOOD_WHETHER = (
+    'clear',
+    'partly-cloudy',
+    'cloudy'
+    'overcast',
+    'drizzle',
+)
 
 def check_python_version():
     import sys
