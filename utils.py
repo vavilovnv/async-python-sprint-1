@@ -20,6 +20,12 @@ ERR_MESSAGE_TEMPLATE = "Something wrong. Please contact with mentor."
 MIN_MAJOR_PYTHON_VER = 3
 MIN_MINOR_PYTHON_VER = 9
 
+MIN_TIME = 9
+MAX_TIME = 19
+
+STR_TEMPERATURE = 'Температура, среднее'
+STR_HOURS = 'Без осадков, часов'
+
 GOOD_WHETHER = (
     'clear',
     'partly-cloudy',
