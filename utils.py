@@ -1,3 +1,13 @@
+import logging
+
+logger = logging.getLogger()
+logging.basicConfig(
+    filename='app_log.log',
+    level=logging.INFO,
+    filemode='w',
+    format='%(name)s - %(levelname)s - %(message)s',
+)
+
 CITIES = {
     "MOSCOW": "https://code.s3.yandex.net/async-module/moscow-response.json",
     "PARIS": "https://code.s3.yandex.net/async-module/paris-response.json",
@@ -23,8 +33,14 @@ MIN_MINOR_PYTHON_VER = 9
 MIN_TIME = 9
 MAX_TIME = 19
 
+JSON_FILENAME = 'data.json'
+
 STR_TEMPERATURE = 'Температура, среднее'
 STR_HOURS = 'Без осадков, часов'
+STR_AVRG = 'Среднее'
+STR_CITY = 'Город/день'
+STR_RANK = 'Рейтинг'
+STR_BEST_CITIES = 'Список наиболее благоприятных для посещения городов:'
 
 GOOD_WHETHER = (
     'clear',
@@ -33,6 +49,7 @@ GOOD_WHETHER = (
     'overcast',
     'drizzle',
 )
+
 
 def check_python_version():
     import sys

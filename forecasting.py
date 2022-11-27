@@ -1,15 +1,12 @@
-# import logging
-# import threading
-# import subprocess
-# import multiprocessing
 import multiprocessing
 
-from api_client import YandexWeatherAPI
 from tasks import (
     DataCalculationTask,
     DataAggregationTask,
     DataAnalyzingTask,
 )
+
+from utils import logger
 
 
 def forecast_weather():
@@ -20,10 +17,15 @@ def forecast_weather():
     consumer = DataAggregationTask(queue)
 
     producer.start()
+    logger.info(msg='Процесс producer запущен.')
     producer.join()
 
     consumer.start()
+    logger.info(msg='Процесс consumer запущен.')
     consumer.join()
+
+    logger.info(msg='Анализ данных...')
+    DataAnalyzingTask().analyze()
 
 
 if __name__ == "__main__":

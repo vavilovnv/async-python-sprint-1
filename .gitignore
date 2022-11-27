@@ -4,6 +4,8 @@ creds.ini
 __pycache__/
 *.pyc
 
+*.log
+*.json
+
 venv
 venv/
-data.json
