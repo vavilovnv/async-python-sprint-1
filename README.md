@@ -1,3 +1,5 @@
+![example workflow](https://github.com/vavilovnv/async-python-sprint-1/actions/workflows/app-testing.yml/badge.svg)  
+
 # Проектное задание первого спринта
 
 Ваша задача — проанализировать данные по погодным условиям, полученные от API Яндекс Погоды.
