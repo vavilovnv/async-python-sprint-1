@@ -5,7 +5,7 @@ logging.basicConfig(
     filename='app_log.log',
     level=logging.INFO,
     filemode='w',
-    format='%(name)s - %(levelname)s - %(message)s',
+    format='%(name)s - %(asctime)s - %(levelname)s - %(message)s',
 )
 
 CITIES = {
