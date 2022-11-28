@@ -11,6 +11,8 @@ from utils import (JSON_FILENAME, STR_CITY, STR_TEMPERATURE, STR_HOURS,
 
 
 class TasksTest(unittest.TestCase):
+    """Тестирование методов классов DataAggregationTask, DataAnalyzingTask,
+    DataCalculationTask, DataFetchingTask."""
 
     QUEUE = multiprocessing.Queue()
 
@@ -47,8 +49,8 @@ class TasksTest(unittest.TestCase):
         path = pl.Path(JSON_FILENAME).resolve()
         self.delete_json_file(path)
         queue = self.QUEUE
-        produser = DataCalculationTask(queue)
-        produser.run()
+        producer = DataCalculationTask(queue)
+        producer.run()
         consumer = DataAggregationTask(queue)
         consumer.run()
         self.assertTrue(queue.empty())

@@ -12,6 +12,7 @@ from utils import (CITIES, GOOD_WHETHER, JSON_FILENAME, MIN_TIME, MAX_TIME,
 
 
 class DataFetchingTask:
+    """Получение данных от YandexWeatherAPI."""
 
     @staticmethod
     def get_whether(city: str) -> dict:
@@ -19,6 +20,10 @@ class DataFetchingTask:
 
 
 class DataCalculationTask(Process):
+    """Обработка данных полученных от YandexWeatherAPI. Подсчет средней
+    температуры и количества часов без осадков по городам. Если данные за
+    день не содержат информации необходимой, такой день исключается из
+    расчета."""
 
     def __init__(self, queue):
         super().__init__()
@@ -57,8 +62,9 @@ class DataCalculationTask(Process):
                 )
                 continue
             temp_data[STR_AVRG] = round(temperature / len(temp_data), 1)
-            good_hours_data[STR_AVRG] = (int(round(good_hours /
-                                             len(good_hours_data), 0)))
+            good_hours_data[STR_AVRG] = (
+                int(round(good_hours / len(good_hours_data), 0))
+            )
         return {
             STR_CITY: city,
             STR_TEMPERATURE: temp_data,
@@ -75,6 +81,8 @@ class DataCalculationTask(Process):
 
 
 class DataAggregationTask(Process):
+    """Сведение полученных и обработанных данных о погоде по
+    городам в один файл для анализа."""
 
     def __init__(self, queue):
         super().__init__()
@@ -96,6 +104,8 @@ class DataAggregationTask(Process):
 
 
 class DataAnalyzingTask:
+    """Анализ данных о погоде, расчет рейтинга и обновление файла с данными.
+    Определение города (или нескольких городов) с наилучшим рейтингом."""
 
     @staticmethod
     def analyze() -> None:
