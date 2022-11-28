@@ -1,14 +1,12 @@
 import json
-
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Process
 from typing import List
 
 from api_client import YandexWeatherAPI
-from utils import logger
-from utils import (CITIES, GOOD_WHETHER, JSON_FILENAME, MIN_TIME, MAX_TIME,
+from utils import (CITIES, GOOD_WHETHER, JSON_FILENAME, MAX_TIME, MIN_TIME,
                    STR_AVRG, STR_BEST_CITIES, STR_CITY, STR_HOURS, STR_RANK,
-                   STR_TEMPERATURE)
+                   STR_TEMPERATURE, logger)
 
 
 class DataFetchingTask:

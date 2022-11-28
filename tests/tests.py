@@ -4,10 +4,9 @@ import os
 import pathlib as pl
 import unittest
 
-from tasks import (DataAggregationTask, DataAnalyzingTask,
-                   DataCalculationTask, DataFetchingTask)
-from utils import (JSON_FILENAME, STR_CITY, STR_TEMPERATURE, STR_HOURS,
-                   STR_RANK)
+from tasks import (DataAggregationTask, DataAnalyzingTask, DataCalculationTask,
+                   DataFetchingTask)
+from utils import JSON_FILENAME, STR_CITY, STR_HOURS, STR_RANK, STR_TEMPERATURE
 
 
 class TasksTest(unittest.TestCase):
