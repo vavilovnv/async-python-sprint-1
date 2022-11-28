@@ -2,6 +2,7 @@ import json
 
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Process
+from typing import List
 
 from api_client import YandexWeatherAPI
 from utils import logger
@@ -13,7 +14,7 @@ from utils import (CITIES, GOOD_WHETHER, JSON_FILENAME, MIN_TIME, MAX_TIME,
 class DataFetchingTask:
 
     @staticmethod
-    def get_whether(city):
+    def get_whether(city: str) -> dict:
         return YandexWeatherAPI().get_forecasting(city)
 
 
@@ -24,7 +25,7 @@ class DataCalculationTask(Process):
         self.queue = queue
 
     @staticmethod
-    def day_calculation(hours):
+    def day_calculation(hours: List[dict]) -> dict:
         temp, good_hours = [], 0
         for data in hours:
             if MIN_TIME <= int(data['hour']) <= MAX_TIME:
@@ -38,7 +39,7 @@ class DataCalculationTask(Process):
         }
 
     @staticmethod
-    def city_calculation(city):
+    def city_calculation(city: str) -> dict:
         temp_data, good_hours_data = {}, {}
         temperature, good_hours = 0, 0
         forecast_data = DataFetchingTask().get_whether(city)
@@ -97,7 +98,7 @@ class DataAggregationTask(Process):
 class DataAnalyzingTask:
 
     @staticmethod
-    def analyze():
+    def analyze() -> None:
         with open('data.json''', 'r', encoding='utf-8') as f:
             data = json.load(f)
         cities = {
@@ -113,6 +114,11 @@ class DataAnalyzingTask:
         for data_city in data:
             city = data_city[STR_CITY]
             data_city[STR_RANK] = ranked_cities[city]
+        data.sort(key=lambda x: x[STR_RANK], reverse=True)
+        json_obj = json.dumps(data, indent=4, ensure_ascii=False)
+        with open(JSON_FILENAME, 'w', encoding='utf-8') as f:
+            f.write(json_obj)
+        logger.info(f'Рассчитаны рейтинги городов в файле {JSON_FILENAME}.')
         best_cities = [i[STR_CITY] for i in data if i[STR_RANK] == max_rank]
         result_message = f'{STR_BEST_CITIES}: {",".join(best_cities)}'
         print(result_message)
