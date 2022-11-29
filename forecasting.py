@@ -6,7 +6,10 @@ from tasks import (
     DataAnalyzingTask,
 )
 
-from utils import logger
+from utils import get_logger
+
+
+logger = get_logger()
 
 
 def forecast_weather():
@@ -17,14 +20,14 @@ def forecast_weather():
     consumer = DataAggregationTask(queue)
 
     producer.start()
-    logger.info(msg='Процесс producer запущен.')
+    logger.info(msg='Producer process started.')
     producer.join()
 
     consumer.start()
-    logger.info(msg='Процесс consumer запущен.')
+    logger.info(msg='Consumer process started.')
     consumer.join()
 
-    logger.info(msg='Анализ данных...')
+    logger.info(msg='Data analyze...')
     DataAnalyzingTask().analyze()
 
 

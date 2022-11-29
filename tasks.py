@@ -1,20 +1,23 @@
 import json
+import logging
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Process
-from typing import List
 
 from api_client import YandexWeatherAPI
+from data_classes import Forecast, WeatherDetail
 from utils import (CITIES, GOOD_WHETHER, JSON_FILENAME, MAX_TIME, MIN_TIME,
                    STR_AVRG, STR_BEST_CITIES, STR_CITY, STR_HOURS, STR_RANK,
-                   STR_TEMPERATURE, logger)
+                   STR_TEMPERATURE)
+
+logger = logging.getLogger('forecasting')
 
 
 class DataFetchingTask:
     """Получение данных от YandexWeatherAPI."""
 
     @staticmethod
-    def get_whether(city: str) -> dict:
-        return YandexWeatherAPI().get_forecasting(city)
+    def get_whether(city: str) -> Forecast:
+        return Forecast.parse_obj(YandexWeatherAPI().get_forecasting(city))
 
 
 class DataCalculationTask(Process):
@@ -28,12 +31,12 @@ class DataCalculationTask(Process):
         self.queue = queue
 
     @staticmethod
-    def day_calculation(hours: List[dict]) -> dict:
+    def day_calculation(hours: list[WeatherDetail]) -> dict:
         temp, good_hours = [], 0
         for data in hours:
-            if MIN_TIME <= int(data['hour']) <= MAX_TIME:
-                temp.append(data['temp'])
-                if data['condition'] in GOOD_WHETHER:
+            if MIN_TIME <= int(data.hour) <= MAX_TIME:
+                temp.append(data.temp)
+                if data.condition in GOOD_WHETHER:
                     good_hours += 1
         average_temp = sum(temp) / len(temp)
         return {
@@ -46,8 +49,8 @@ class DataCalculationTask(Process):
         temp_data, good_hours_data = {}, {}
         temperature, good_hours = 0, 0
         forecast_data = DataFetchingTask().get_whether(city)
-        for forecast in forecast_data['forecasts']:
-            day, hours = forecast['date'], forecast['hours']
+        for forecast in forecast_data.forecasts:
+            day, hours = forecast.date, forecast.hours
             try:
                 day_data = DataCalculationTask.day_calculation(hours)
                 temp_data[day] = day_data['average_temp']
@@ -56,7 +59,7 @@ class DataCalculationTask(Process):
                 good_hours += good_hours_data[day]
             except ZeroDivisionError:
                 logger.debug(
-                    msg=f'Недостаточно данных по городу {city} за день {day}.'
+                    'Not enough %s data for the day %s.', city, day
                 )
                 continue
             temp_data[STR_AVRG] = round(temperature / len(temp_data), 1)
@@ -75,7 +78,7 @@ class DataCalculationTask(Process):
             data = pool.map(self.city_calculation, CITIES.keys())
             for city in data:
                 self.queue.put(city)
-                logger.info(msg=f'В очередь добавлен город {city}.')
+                logger.info('City %s added to the queue.', city[STR_CITY])
 
 
 class DataAggregationTask(Process):
@@ -88,17 +91,15 @@ class DataAggregationTask(Process):
 
     def run(self) -> None:
         data = []
-        while True:
-            if self.queue.empty():
-                logger.info('Очередь очищена.')
-                json_obj = json.dumps(data, indent=4, ensure_ascii=False)
-                with open(JSON_FILENAME, 'w', encoding='utf-8') as f:
-                    f.write(json_obj)
-                logger.info(f'Сформирован файл {JSON_FILENAME}.')
-                break
+        while not self.queue.empty():
             city = self.queue.get()
             data.append(city)
-            logger.info(msg=f'Из очереди получены данные по городу {city}.')
+            logger.info('From the queue obtained data for %s.', city[STR_CITY])
+        logger.info('The queue is cleared.')
+        json_obj = json.dumps(data, indent=4, ensure_ascii=False)
+        with open(JSON_FILENAME, 'w', encoding='utf-8') as f:
+            f.write(json_obj)
+        logger.info('File %s created.', JSON_FILENAME)
 
 
 class DataAnalyzingTask:
@@ -107,8 +108,11 @@ class DataAnalyzingTask:
 
     @staticmethod
     def analyze() -> None:
-        with open('data.json''', 'r', encoding='utf-8') as f:
-            data = json.load(f)
+        try:
+            with open('data.json''', 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except EnvironmentError:
+            logger.error('File %s is not exist.', JSON_FILENAME)
         cities = {
             i[STR_CITY]: (
                 i[STR_TEMPERATURE][STR_AVRG],
@@ -126,8 +130,8 @@ class DataAnalyzingTask:
         json_obj = json.dumps(data, indent=4, ensure_ascii=False)
         with open(JSON_FILENAME, 'w', encoding='utf-8') as f:
             f.write(json_obj)
-        logger.info(f'Рассчитаны рейтинги городов в файле {JSON_FILENAME}.')
+        logger.info('Ranks calculated and saved to %s.', JSON_FILENAME)
         best_cities = [i[STR_CITY] for i in data if i[STR_RANK] == max_rank]
         result_message = f'{STR_BEST_CITIES}: {",".join(best_cities)}'
         print(result_message)
-        logger.info(msg=result_message)
+        logger.info(result_message)

@@ -1,12 +1,5 @@
 import logging
 
-logger = logging.getLogger()
-logging.basicConfig(
-    filename='app_log.log',
-    level=logging.INFO,
-    filemode='w',
-    format='%(name)s - %(asctime)s - %(levelname)s - %(message)s',
-)
 
 CITIES = {
     "MOSCOW": "https://code.s3.yandex.net/async-module/moscow-response.json",
@@ -40,7 +33,7 @@ STR_HOURS = 'Без осадков, часов'
 STR_AVRG = 'Среднее'
 STR_CITY = 'Город/день'
 STR_RANK = 'Рейтинг'
-STR_BEST_CITIES = 'Список наиболее благоприятных для посещения городов:'
+STR_BEST_CITIES = 'List of the most favorable cities to visit'
 
 GOOD_WHETHER = (
     'clear',
@@ -63,3 +56,14 @@ def check_python_version():
                 MIN_MAJOR_PYTHON_VER, MIN_MINOR_PYTHON_VER
             )
         )
+
+
+def get_logger():
+    logger = logging.getLogger('forecasting')
+    logging.basicConfig(
+        filename='app_log.log',
+        level=logging.DEBUG,
+        filemode='w',
+        format='%(name)s - %(asctime)s - %(levelname)s - %(message)s',
+    )
+    return logger
